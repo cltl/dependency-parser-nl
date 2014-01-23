@@ -2,7 +2,7 @@
 
 This module implements a dependency parser for Dutch based on the Alpino parser. The input/output format is KAF/NAF format (a description of the KAF format
 can be found at https://github.com/opener-project/kaf/wiki/KAF-structure-overview). This is the specification of the input/output:
-* Input: a valid KAF/NAF file at least with the <text> and <term> layer
+* Input: a valid KAF/NAF file at least with the \<text> and <term> layer
 * Output: the input KAF/NAF file extended with dependencies (<deps> layer)
 
 #Installation#
@@ -14,7 +14,7 @@ This module is fully implemented using Python, so you will need to have it insta
 
 These are the steps recommend for the installation. You can skip any step if that tool/library is already installed on your machine.
 
-##1 Alpino parser##
+##1 Install the Alpino parser##
 
 To install the Alpino parser we recommend to download the binary package that suits your system (http://www.let.rug.nl/vannoord/alp/Alpino/binary/)
 
@@ -41,7 +41,7 @@ Again only cloning the repository from our CLTL github account is required:
 git clone https://github.com/cltl/dependency-parser-nl.git
 ````
 
-##4 Setting up##
+##5 Setting up##
 
 The dependency parser needs to know where Alpino and the KafNafParser were installed. So you will have to specify the path to these tools in the file config.cfg.
 Open it with a text editor and set the paths to the correct paths where you installed Alpino and KafNafParser in your local machine. If Alpino has been installed on
