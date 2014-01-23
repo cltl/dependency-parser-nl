@@ -1,4 +1,4 @@
-dependency-parser-nl
+#Dependency parser for Dutch#
 ====================
 
-Dependency parser based on Alpino and KAF/NAF as input/output
+Dependency parser based on Alpino
