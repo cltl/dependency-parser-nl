@@ -2,8 +2,8 @@
 
 This module implements a dependency parser for Dutch based on the Alpino parser. The input/output format is KAF/NAF format (a description of the KAF format
 can be found at https://github.com/opener-project/kaf/wiki/KAF-structure-overview). This is the specification of the input/output:
-* Input: a valid KAF/NAF file at least with the "<text>" and <term> layer
-* Output: the input KAF/NAF file extended with dependencies (<deps> layer)
+* Input: a valid KAF/NAF file at least with the `<text>` and `<term>` layer
+* Output: the input KAF/NAF file extended with dependencies (`<deps>` layer)
 
 #Installation#
 
