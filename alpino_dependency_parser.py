@@ -185,10 +185,24 @@ logging.debug('Calling to Alpino parser in '+ALPINO_HOME)
 
 ## CALL TO ALPINO
 alpino_bin = os.path.join(ALPINO_HOME,'bin','Alpino')
-cmd = alpino_bin+' -fast end_hook=triples -parse'
+cmd = alpino_bin+' -parse'
 os.environ['ALPINO_HOME']=ALPINO_HOME
-alpino_pro = Popen(cmd,stdout=PIPE,stdin=PIPE,stderr=PIPE,shell=True)
+alpino_pro = Popen(cmd,stdout=PIPE,stdin=PIPE,stderr=sys.stderr,shell=True)
 
+str_input = ''
+for num_sentence, sentence in enumerate(sentences):
+  str_input +=str(num_sentence)+'|'
+  for token in sentence:
+    token = token.replace('[','\[')
+    token = token.replace(']','\]')
+    token = token.replace('|','')
+    str_input+=token.encode('utf-8')+' '
+  str_input+='\n'
+
+alpino_out, alpino_err = alpino_pro.communicate(str_input)
+#alpino_pro.stdin.write(str_input)
+
+'''
 for num_sentence, sentence in enumerate(sentences):
   alpino_pro.stdin.write(str(num_sentence)+'|')
   #print str(num_sentence)+'|',
@@ -202,15 +216,16 @@ for num_sentence, sentence in enumerate(sentences):
   #print 
   #print>>sys.stderr
 alpino_pro.stdin.close()
-
-logging.debug('Alpino log out:\n'+alpino_pro.stderr.read())
+'''
+#logging.debug('Alpino log out:\n'+alpino_pro.stderr.read())
 
 # As we are not reading the stdout or stderr of the process, if we dont wait to it to be done
 # the parent will keep running without alpino be completed, and we will get empty XML files
 # If the parent reads from stdout or stderr, it waits to the child to be completed before keep running
-alpino_pro.wait()
+#alpino_pro.wait()
 
-for line in alpino_pro.stdout:
+#for line in alpino_pro.stdout:
+for line in alpino_out.splitlines():
     line = line.strip().decode('utf-8')
     my_dep = Calpino_dependency(line)
     if my_dep.is_ok():
