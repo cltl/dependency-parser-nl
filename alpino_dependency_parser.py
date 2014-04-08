@@ -6,6 +6,7 @@ import os
 import logging
 import re
 import ConfigParser
+import argparse
 
 
 from lxml import etree
@@ -15,9 +16,11 @@ from subprocess import Popen,PIPE
 
 ## LAST CHANGES ##
 # 22-jan=2014: created repository
+# 8-april-2014: direction of the relations reversed
+
 
 last_modified='23Jan2014'
-version="1.0"
+version="0.2"
 this_name = 'Alpino KAF/NAF dependency parser'
 this_layer = 'deps'
 config_filename = 'config.cfg'
@@ -33,19 +36,19 @@ class Calpino_dependency:
         self.begin_from = self.begin_to = self.end_from = self.end_to = self.sentence = ''
         fields = line.split('|')
         if len(fields) == 4:
-            token_from = fields[0]
-            match =  re.match(r'(.+)/\[(\d+),(\d+)\]', token_from)
+            token_to = fields[0]
+            match =  re.match(r'(.+)/\[(\d+),(\d+)\]', token_to)
             if match is not None:
-                self.lemma_from = match.group(1)
-                self.begin_from = int(match.group(2))
-                self.end_from = int(match.group(3))
+                self.lemma_to = match.group(1)
+                self.begin_to = int(match.group(2))
+                self.end_to = int(match.group(3))
                 
-                token_to = fields[2]
-                match2 =  re.match(r'(.+)/\[(\d+),(\d+)\]', token_to)
+                token_from = fields[2]
+                match2 =  re.match(r'(.+)/\[(\d+),(\d+)\]', token_from)
                 if match2 is not None:
-                    self.lemma_to = match2.group(1)
-                    self.begin_to = int(match2.group(2))
-                    self.end_to = int(match2.group(3))
+                    self.lemma_from = match2.group(1)
+                    self.begin_from = int(match2.group(2))
+                    self.end_from = int(match2.group(3))
                     self.relation = fields[1]
                     self.sentence = int(fields[3])
                 else:
@@ -74,7 +77,7 @@ class Calpino_dependency:
             for t_from in terms_from:
                 for t_to in terms_to:
                     ##Creating comment
-                    str_comment = self.relation+'('+self.lemma_to+','+self.lemma_from+')'
+                    str_comment = ' '+self.relation+'('+self.lemma_to+','+self.lemma_from+') '
                     
                     my_dep = Cdependency()
                     my_dep.set_from(t_to)
@@ -88,25 +91,25 @@ class Calpino_dependency:
         return dependencies
         
 
+
+argument_parser = argparse.ArgumentParser(description='Alpino dependency parser. Required input stream, KAF file with text and term layer',
+                                          usage='cat myfile.kaf | '+sys.argv[0]+' [options]')
+argument_parser.add_argument('-no_time',dest='my_time_stamp', action='store_false',help='No timestamp in the header')
+argument_parser.add_argument('-rm_deps', dest='remove_deps', action='store_true',help='To remove the dependencies already existing')
+
+
+arguments = argument_parser.parse_args()  
+
+
      
 
 if not sys.stdin.isatty(): 
     ## READING FROM A PIPE
     pass
 else:
-    print>>sys.stderr,'Input stream required in KAF format at least with the text and term layers.'
-    print>>sys.stderr,'The language encoded in the KAF has to be Dutch, otherwise it will raise an error.'
-    print>>sys.stderr,'Example usage: cat myUTF8file.kaf.xml |',sys.argv[0]
+    argument_parser.print_help()
     sys.exit(-1)
 
-my_time_stamp = True
-try:
-  opts, args = getopt.getopt(sys.argv[1:],"",["no-time"])
-  for opt, arg in opts:
-    if opt == "--no-time":
-      my_time_stamp = False
-except getopt.GetoptError:
-  pass
   
 my_config = ConfigParser.ConfigParser()
 config_file = os.path.join(__module_dir, config_filename)
@@ -131,6 +134,10 @@ from KafNafParserPy import *
   
 logging.debug('Loading and parsing KAF file ...')
 my_knaf = KafNafParser(sys.stdin)
+
+if arguments.remove_deps:
+    logging.debug("Dependency layer removed from the input KAF file (if exists)")
+    my_knaf.remove_dependency_layer()
 
 lang = my_knaf.get_language()
 if lang != 'nl':
@@ -238,7 +245,11 @@ for line in alpino_out.splitlines():
 my_lp = Clp()
 my_lp.set_name(this_name)
 my_lp.set_version(version+'_'+last_modified)
-my_lp.set_timestamp()
+if arguments.my_time_stamp:
+    my_lp.set_timestamp()
+else:
+    my_lp.set_timestamp('*')
+    
 my_knaf.add_linguistic_processor(this_layer,my_lp)
 my_knaf.dump()
         
