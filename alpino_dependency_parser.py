@@ -87,7 +87,7 @@ class Calpino_dependency:
                     
                     dependencies.append(my_dep)
         except Exception as e:
-            print>>sys,stderr,str(e)
+            print>>sys.stderr,str(e)
         return dependencies
         
 
@@ -119,6 +119,9 @@ if not os.path.exists(config_file):
     sys.exit(-1)
 my_config.read(config_file)
 ALPINO_HOME = my_config.get('general','alpino_home')
+os.environ['SP_CTYPE']='utf8'
+os.environ['SP_CSETLEN']='212'
+
 if not os.path.exists(ALPINO_HOME):
     print>>sys.stderr,'ALPINO not found in: ',ALPINO_HOME
     print>>sys.stderr,'Set the path to Alpino properly on the configuration filename ('+config_filename+') or install Alpino'
